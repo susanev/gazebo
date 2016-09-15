@@ -5,6 +5,8 @@ var capture;
 var words;
 var descPosition = 60;
 var curName;
+var barInterval;
+var start = false;
 
 var count = 0;
 
@@ -36,11 +38,12 @@ function draw() {
   background(255);   
   //fill(0, alpha_level);
   textSize(20);
+  r = int(random(3000, 6000));
   if(!curName.displayed) {
     text(curName.name, 10, 30);
     setTimeout(function() {
       curName.displayed = true;
-    }, 3000);
+    }, r);
   }
   else {
     fill(0);
@@ -54,6 +57,11 @@ function draw() {
     for(var i=0; i<words.length; i++){
         words[i].display();
     }
+  }
+  
+  if(curName.alpha_level == 255 && start == false){
+    start = true;
+    startBarInterval();
   }
   
 
@@ -87,6 +95,17 @@ function draw() {
   // }
 }
 
+function startBarInterval() {
+  r = int(random(3000, 10000));
+  barInterval = setInterval(function() {
+    advance();}
+  , r);
+}
+
+function stopBarInterval() {
+  clearInterval(barInterval);
+}
+
 function gotSources(sources) {
   for (var i = 0; i !== sources.length; ++i) {
     if (sources[i].kind === 'audio') {
@@ -99,7 +118,8 @@ function gotSources(sources) {
   }
 }
 
-function mousePressed() {
+function advance() {
+  stopBarInterval();
   var flag = false;
   if(count <= 1) {
     for(var i=0; i<words.length; i++){
@@ -138,10 +158,13 @@ function mousePressed() {
   
   else {
    newData(); 
+   stopBarInterval();
+   start = false;
    count = -1;
   }
   
   count++;
+  startBarInterval();
 }
 
 
@@ -220,6 +243,7 @@ function Word(word_text, index) {
   this.index = index;
   this.blackRectCords = [];
   this.hasNeighbor = false;
+  this.rectWidth = 0;
 
   this.blackRect = function() {
     this.blackRectCords = this.blackOut(this.index);
@@ -233,7 +257,8 @@ function Word(word_text, index) {
           this.hasNeighbor = true;
         }
       }
-      rect(this.blackRectCords[0], this.blackRectCords[1], this.blackRectCords[2], this.blackRectCords[3]);
+      rect(this.blackRectCords[0], this.blackRectCords[1], this.rectWidth, this.blackRectCords[3]);
+      this.rectWidth = min(this.rectWidth+1, this.blackRectCords[2])
     }
   }
   
