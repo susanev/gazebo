@@ -139,6 +139,7 @@ function newData() {
   words = [];
   for(var i=0; i<desc.length; i++){
     if(desc[i].length != 0){
+      desc[i] = desc[i].replace(/^\s+|\s+$/g, '');
       words[i] = new Word(desc[i]+" ", i);
       
       for(var j=0; j<blackout1.length; j++){
