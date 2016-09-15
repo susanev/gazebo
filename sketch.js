@@ -1,9 +1,8 @@
 var data;
-var desc;
+var cur_desc;
 var mic;
 var alpha_level;
 var capture;
-var words;
 
 var count = 0;
 
@@ -28,22 +27,23 @@ function setup() {
   // MediaStreamTrack.getSources(gotSources);
   
   // capture.size(320, 240);
-  newData();
+  cur_desc = new Description();
+  try {
+  cur_desc.setWords();
+  }
+  catch(e){
+    console.log(e);
+  }
   
   alpha_level = 255;
-  
-
 }
 
 function draw() {
   background(255);   
   fill(0, alpha_level);
   textSize(20);
-  text(desc.join(" "), 10, 30, 700, 500);
-  
-  for(var i=0; i<words.length; i++){
-    words[i].display();
-  }  
+  text(cur_desc.desc.join(" "), 10, 30, 700, 500);
+  cur_desc.display();
 
   //image(capture, 0, 0, 320, 240);
   
@@ -125,60 +125,11 @@ function mousePressed() {
   }
   
   else {
-   newData(); 
+   cur_desc = new Description();
    count = -1;
   }
   
   count++;
-}
-
-function newData() {
-  try {
-    desc = split(data.getString(int(random(data.getRowCount())),13), " ");
-    //desc = split(data.getString(3021-22,13), " ");
-    //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
-    words = [];
-    for(var i=0; i<desc.length; i++){
-      desc[i] = desc[i].replace(/^\s+|\s+$/g, '');
-      if(desc[i].length != 0){
-        words[i] = new Word(desc[i]+" ", i);
-        
-        for(var j=0; j<blackout1.length; j++){
-          if(desc[i].includes(blackout1[j])){
-            words[i].blackOutLevel = 1;
-          }
-        }
-        
-        for(var j=0; j<keep.length; j++){
-          if(desc[i].includes(keep[j])){
-            words[i].blackOutLevel = 4;
-          }
-        }
-        
-        first_letter = unchar(words[i].word_text[0]);
-        if(first_letter >= 65 && first_letter <= 90){
-          words[i].blackOutLevel = 2;
-        }
-      }
-    }
-    
-    for(var i=0; i<words.length-2; i++){
-      for(var j=0; j<blackout1_pairs.length; j++){
-        if(words[i].word_text.includes(blackout1_pairs[j][0]) && words[i+1].word_text.includes(blackout1_pairs[j][1])){
-          words[i].blackOutLevel = 1;
-          words[i+1].blackOutLevel = 1;
-          i++;
-        }
-      }
-    }
-    
-    for(var i=0; i<words.length; i++){
-      words[i].blackRect();
-    }
-  }
-  catch(e) {
-    console.log(e);
-  }
 }
 
 function Word(word_text, index) {
@@ -189,48 +140,93 @@ function Word(word_text, index) {
   this.index = index;
   this.blackRectCords = [];
   this.hasNeighbor = false;
+}
 
-  this.blackRect = function() {
-    this.blackRectCords = this.blackOut(this.index);
-  }
+
+function Description() {
+  this.desc = split(data.getString(int(random(data.getRowCount())),13), " ");
+  this.words = [];
+  //desc = split(data.getString(3021-22,13), " ");
+  //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
   
   this.display = function() {
-    if(this.blackedOut){
-      if(index < words.length-1){
-        if(this.hasNeighbor == false && words[index+1].blackedOut) {
-          this.blackRectCords[2]+=10;
-          this.hasNeighbor = true;
+    for(var i=0; i<this.words.length; i++){
+      if(this.words[i].blackedOut){
+        if(this.words[i].index < this.words.length-1){
+          if(this.words[i].hasNeighbor == false && this.words[i+1].blackedOut) {
+            this.words[i].blackRectCords[2]+=10;
+            this.words[i].hasNeighbor = true;
+          }
         }
+        rect(this.words[i].blackRectCords[0], this.words[i].blackRectCords[1], this.words[i].blackRectCords[2], this.words[i].blackRectCords[3]);
       }
-      rect(this.blackRectCords[0], this.blackRectCords[1], this.blackRectCords[2], this.blackRectCords[3]);
     }
   }
   
-  this.blackOut = function() {
-    all_words_before = 0;
-    line_num = 0;
-    lines_before = 0;
-    this_line = 0
-    
-    for(var i=0; i<this.index; i++){
-      this_line+=words[i].word_length;
-      all_words_before+=words[i].word_length;
-      
-      if(this_line > 700){
-        lines_before = all_words_before-words[i].word_length;;
-        this_line = words[i].word_length;
-        line_num++;
+  this.setWords = function() {
+    console.log("here_pre");
+    for(var i=0; i<this.desc.length; i++){
+      this.desc[i] = this.desc[i].replace(/^\s+|\s+$/g, '');
+      if(this.desc[i].length != 0){
+        this.words[i] = new Word(this.desc[i]+" ", i);
+        console.log("here");
+        for(var j=0; j<blackout1.length; j++){
+          if(this.desc[i].includes(blackout1[j])){
+            this.words[i].blackOutLevel = 1;
+          }
+        }
+        
+        for(var j=0; j<keep.length; j++){
+          if(this.desc[i].includes(keep[j])){
+            this.words[i].blackOutLevel = 4;
+          }
+        }
+        
+        first_letter = unchar(this.words[i].word_text[0]);
+        if(first_letter >= 65 && first_letter <= 90){
+          this.words[i].blackOutLevel = 2;
+        }
       }
     }
     
-    if(this_line + words[this.index].word_length > 700){
-      line_num++;
-      lines_before = all_words_before;
+    for(var i=0; i<this.words.length-2; i++){
+      for(var j=0; j<blackout1_pairs.length; j++){
+        if(this.words[i].word_text.includes(blackout1_pairs[j][0]) && this.words[i+1].word_text.includes(blackout1_pairs[j][1])){
+          this.words[i].blackOutLevel = 1;
+          this.words[i+1].blackOutLevel = 1;
+          i++;
+        }
+      }
     }
     
-    return([10+all_words_before-lines_before, line_num*25+30, this.word_length-10, 20]);
+    for(var i=0; i<this.words.length; i++){
+      all_words_before = 0;
+      line_num = 0;
+      lines_before = 0;
+      this_line = 0
+      
+      for(var i=0; i<this.words[i].index; i++){
+        this_line+=this.words[i].word_length;
+        all_words_before+=this.words[i].word_length;
+        
+        if(this_line > 700){
+          lines_before = all_words_before-this.words[i].word_length;;
+          this_line = this.words[i].word_length;
+          line_num++;
+        }
+      }
+      
+      if(this_line + this.words[i].word_length > 700){
+        line_num++;
+        lines_before = all_words_before;
+      }
+      
+      this.words[i].blackRectCords = [10+all_words_before-lines_before, line_num*25+30, this.words[i].word_length-10, 20];
+    }
   }
 }
+
+
 
 
 
