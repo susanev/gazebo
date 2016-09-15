@@ -152,6 +152,7 @@ function mousePressed() {
 
 function newData() {
   try {
+    // force commit
     nameBlackedOut = 0;
     alpha_level = 0;
     cell = int(random(data.getRowCount()))
