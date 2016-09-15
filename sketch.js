@@ -11,7 +11,7 @@ var count = 0;
 var blackout1 = ["allegedly", "threatening", "threatened", "domestic", "burglary", "robbery", "approached", "brandished", "situation", "history", "armed", "suspect", "appeared", "seemed", "warning"];
 var blackout1_pairs = [["reached", "for"]];
 
-var keep = ["break", "hurt", "man", "woman", "child", "dead", "death", "girl", "boy", "home", "died", "mother"];
+var keep = ["break", "hurt", "man", "woman", "child", "dead", "death", "girl", "boy", "home", "died", "mother", "year-old"];
 
 function preload() {
   data = loadTable("data/MPVDataset.csv", "csv", "header")
