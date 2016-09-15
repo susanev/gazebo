@@ -144,17 +144,19 @@ function newData() {
   //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
   words = [];
   for(var i=0; i<desc.length; i++){
-    words[i] = new Word(desc[i]+" ");
-    
-    for(var j=0; j<blackout1.length; j++){
-      if(desc[i] == blackout1[j]){
-        words[i].blackOutLevel = 1;
+    if(desc[i].length != 0){
+      words[i] = new Word(desc[i]+" ");
+      
+      for(var j=0; j<blackout1.length; j++){
+        if(desc[i] == blackout1[j]){
+          words[i].blackOutLevel = 1;
+        }
       }
-    }
-    
-    first_letter = unchar(words[i].word_text[0]);
-    if(first_letter >= 65 && first_letter <= 90){
-      words[i].blackOutLevel = 2;
+      
+      first_letter = unchar(words[i].word_text[0]);
+      if(first_letter >= 65 && first_letter <= 90){
+        words[i].blackOutLevel = 2;
+      }
     }
   }
 }
