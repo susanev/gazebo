@@ -37,3 +37,6 @@ Collaborating with [Helen America](http://www.strawberryghost.com/)
 * mother
 * year-old
 * student
+* brother
+* sister
+* father
