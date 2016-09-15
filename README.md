@@ -36,3 +36,4 @@ Collaborating with [Helen America](http://www.strawberryghost.com/)
 * died
 * mother
 * year-old
+* student
