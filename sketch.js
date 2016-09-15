@@ -3,12 +3,15 @@ var desc;
 var mic;
 var alpha_level;
 var capture;
-var r;
 var words;
 
 var count = 0;
 
-var blackout1 = ["pistol", "fatally", "killing", "shot", "dead", "killed", "fire"]
+// var blackout1 = ["pistol", "fatally", "killing", "shot", "dead", "killed", "fire"]
+var blackout1 = ["allegedly", "threatening", "threatened", "domestic", "burglary", "robbery", "approached", "brandished", "situation", "history", "armed", "suspect", "appeared", "seemed", "warning"];
+var blackout1_pairs = [["reached", "for"]];
+
+var keep = ["break", "hurt", "man", "woman", "child", "dead", "death", "girl", "boy", "home", "died", "mother"];
 
 function preload() {
   data = loadTable("data/MPVDataset.csv", "csv", "header")
@@ -39,19 +42,9 @@ function draw() {
   text(desc.join(" "), 10, 30, 700, 500);
   
   for(var i=0; i<words.length; i++){
-    if(words[i].blackedOut){
-      blackOut(i);
-    }
+    words[i].display();
   }  
 
-  // fill(0);
-  // noStroke();
-  // textSize(20);
-  // text("a", 10, 30);
-  // noFill();
-  // stroke(255, 0, 0);
-  // rect(10,20, 10, 10);
-  
   //image(capture, 0, 0, 320, 240);
   
   // for(var x=0; x<video.width; x++){
@@ -119,7 +112,7 @@ function mousePressed() {
     }
     
     for(var i=0; i<words.length; i++){
-      if(random() > r) {
+      if(random() > r && words[i].blackOutLevel < 4) {
         words[i].blackedOut = true;
       }
     }
@@ -141,15 +134,22 @@ function mousePressed() {
 
 function newData() {
   desc = split(data.getString(int(random(data.getRowCount())),13), " ");
+  //desc = split(data.getString(3021-22,13), " ");
   //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
   words = [];
   for(var i=0; i<desc.length; i++){
     if(desc[i].length != 0){
-      words[i] = new Word(desc[i]+" ");
+      words[i] = new Word(desc[i]+" ", i);
       
       for(var j=0; j<blackout1.length; j++){
         if(desc[i].includes(blackout1[j])){
           words[i].blackOutLevel = 1;
+        }
+      }
+      
+      for(var j=0; j<keep.length; j++){
+        if(desc[i].includes(keep[j])){
+          words[i].blackOutLevel = 4;
         }
       }
       
@@ -159,53 +159,74 @@ function newData() {
       }
     }
   }
+  
+  for(var i=0; i<words.length; i++){
+    if(i < words.length-2){
+      for(var j=0; j<blackout1_pairs.length; j++){
+        if(words[i].word_text.includes(blackout1_pairs[j][0]) && words[i+1].word_text.includes(blackout1_pairs[j][1])){
+          words[i].blackOutLevel = 1;
+          words[i+1].blackOutLevel = 1;
+          i++;
+        }
+      }
+    }
+  }
+  
+  for(var i=0; i<words.length; i++){
+    words[i].blackRect();
+  }
 }
 
-// function setValues() {
-
-  
-//   r = int(random(words.length));
-//   // r=34;
-//   words[r].blackedOut = true;
-// }
-
-function Word(word_text) {
+function Word(word_text, index) {
   this.word_text = word_text;
   this.word_length = word_text.length * 10;
   this.blackedOut = false;
   this.blackOutLevel = 0;
+  this.index = index;
+  this.blackRectCords = [];
+  this.hasNeighbor = false;
+
+  this.blackRect = function() {
+    this.blackRectCords = this.blackOut(this.index);
+  }
+  
+  this.display = function() {
+    if(this.blackedOut){
+      if(index < words.length-1){
+        if(this.hasNeighbor == false && words[index+1].blackedOut) {
+          this.blackRectCords[2]+=10;
+          this.hasNeighbor = true;
+        }
+      }
+      rect(this.blackRectCords[0], this.blackRectCords[1], this.blackRectCords[2], this.blackRectCords[3]);
+    }
+  }
+  
+  this.blackOut = function() {
+    all_words_before = 0;
+    line_num = 0;
+    lines_before = 0;
+    this_line = 0
+    
+    for(var i=0; i<this.index; i++){
+      this_line+=words[i].word_length;
+      all_words_before+=words[i].word_length;
+      
+      if(this_line > 700){
+        lines_before = all_words_before-words[i].word_length;;
+        this_line = words[i].word_length;
+        line_num++;
+      }
+    }
+    
+    if(this_line + words[this.index].word_length > 700){
+      line_num++;
+      lines_before = all_words_before;
+    }
+    
+    return([10+all_words_before-lines_before, line_num*25+30, this.word_length-10, 20]);
+  }
 }
 
-function blackOut(index) {
-  all_words_before = 0;
-  line_num = 0;
-  lines_before = 0;
-  this_line = 0
-  
-  for(var i=0; i<index; i++){
-    this_line+=words[i].word_length;
-    all_words_before+=words[i].word_length;
-    
-    if(this_line > 700){
-      lines_before = all_words_before-words[i].word_length;;
-      this_line = words[i].word_length;
-      line_num++;
-    }
-  }
-  
-  if(this_line + words[index].word_length > 700){
-    line_num++;
-    lines_before = all_words_before;
-  }
-  
-  word_width = words[index].word_length
-  
-  if(index < words.length-1){
-    if(!words[index+1].blackedOut) {
-      word_width-=10
-    }
-  }
-  
-  rect(10+all_words_before-lines_before, line_num*25+30, word_width, 20);
-}
+
 
