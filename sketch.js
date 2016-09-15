@@ -198,6 +198,14 @@ function blackOut(index) {
     lines_before = all_words_before;
   }
   
-  rect(10+all_words_before-lines_before, line_num*25+30, words[index].word_length-10, 20);
+  word_width = words[index].word_length
+  
+  if(index < words.length-1){
+    if(!words[index+1].blackedOut) {
+      word_width-=10
+    }
+  }
+  
+  rect(10+all_words_before-lines_before, line_num*25+30, word_width, 20);
 }
 
