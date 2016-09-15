@@ -133,6 +133,7 @@ function advance() {
         i=0;
       }
     }
+    startBarInterval();
   }
   else if(count <= 3){
     r = 0;
@@ -148,12 +149,14 @@ function advance() {
         words[i].blackedOut = true;
       }
     }
+    startBarInterval();
   }
   
   else if(count == 4){
     for(var i=0; i<words.length; i++){
       words[i].blackedOut = true;
     }
+    startBarInterval();
   }
   
   else {
@@ -164,7 +167,6 @@ function advance() {
   }
   
   count++;
-  startBarInterval();
 }
 
 
