@@ -1,13 +1,10 @@
 var data;
 var desc;
 var mic;
-var alpha_level  = 0;
 var capture;
 var words;
-var name;
-var displayName;
 var descPosition = 60;
-var nameBlackedOut = 0;
+var curName;
 
 var count = 0;
 
@@ -33,29 +30,27 @@ function setup() {
   
   // capture.size(320, 240);
   newData();
-  
-  displayName = true;
 }
 
 function draw() {
   background(255);   
   //fill(0, alpha_level);
   textSize(20);
-  if(displayName) {
-    text(name, 10, 30);
+  if(!curName.displayed) {
+    text(curName.name, 10, 30);
     setTimeout(function() {
-      displayName = false;
+      curName.displayed = true;
     }, 3000);
   }
   else {
     fill(0);
-    text(name, 10, 30);
-    rect(10,15, nameBlackedOut, 20);
-    nameBlackedOut = min(nameBlackedOut+1, name.length*10);
+    text(curName.name, 10, 30);
+    rect(10,15, curName.rectWidth, 20);
+    curName.rectWidth = min(curName.rectWidth+1, curName.length*10);
     
-    fill(0, alpha_level);
+    fill(0, curName.alpha_level);
     text(desc.join(" "), 10, descPosition, 700, 500);
-    alpha_level = min(alpha_level+1, 255);
+    curName.alpha_level = min(curName.alpha_level+1, 255);
     for(var i=0; i<words.length; i++){
         words[i].display();
     }
@@ -153,14 +148,8 @@ function mousePressed() {
 function newData() {
   try {
     // force commit
-    nameBlackedOut = 0;
-    alpha_level = 0;
     cell = int(random(data.getRowCount()))
-    name = data.getString(cell, 0);
-    displayName = true;
-    // console.log("here");
-    // delay.delayTime(3000);
-    // console.log("here");
+    curName = new Name(data.getString(cell, 0));
 
     desc = split(data.getString(cell,13), " ");
     //desc = split(data.getString(3021-22,13), " ");
@@ -207,6 +196,20 @@ function newData() {
    catch(e) {
      console.log(e);
    }
+}
+
+function Name(name){
+  this.name = name;
+  this.rectWidth = 0;
+  this.alpha_level = 0;
+  this.displayed = false;
+  this.length = name.length;
+  
+  this.reset = function() {
+    this.rectWidth = 0;
+    this.alpha_level = 0;
+    this.displayed = false;
+  }
 }
 
 function Word(word_text, index) {
