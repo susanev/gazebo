@@ -8,7 +8,7 @@ var words;
 
 var count = 0;
 
-var blackout1 = ["pistol", "fatally", "shoting", "killing", "shot", "dead", "killed", "fire", "died", "fired"]
+var blackout1 = ["pistol", "fatally", "killing", "shot", "dead", "killed", "fire"]
 
 function preload() {
   data = loadTable("data/MPVDataset.csv", "csv", "header")
@@ -148,7 +148,7 @@ function newData() {
       words[i] = new Word(desc[i]+" ");
       
       for(var j=0; j<blackout1.length; j++){
-        if(desc[i] == blackout1[j]){
+        if(desc[i].includes(blackout1[j])){
           words[i].blackOutLevel = 1;
         }
       }
