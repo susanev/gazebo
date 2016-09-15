@@ -152,6 +152,8 @@ function mousePressed() {
 
 function newData() {
   try {
+    nameBlackedOut = 0;
+    alpha_level = 0;
     cell = int(random(data.getRowCount()))
     name = data.getString(cell, 0);
     displayName = true;
