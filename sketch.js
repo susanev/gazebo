@@ -12,8 +12,8 @@ var blackout1 = ["pistol", "fatally", "shoting", "killing", "shot", "dead", "kil
 
 function preload() {
   data = loadTable("data/MPVDataset.csv", "csv", "header")
-  mic = new p5.AudioIn();
-  mic.start();
+  // mic = new p5.AudioIn();
+  // mic.start();
   textFont("Inconsolata");
 }
 
