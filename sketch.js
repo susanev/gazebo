@@ -1,9 +1,13 @@
 var data;
 var desc;
 var mic;
-var alpha_level;
+var alpha_level  = 0;
 var capture;
 var words;
+var name;
+var displayName;
+var descPosition = 60;
+var nameBlackedOut = 0;
 
 var count = 0;
 
@@ -30,20 +34,33 @@ function setup() {
   // capture.size(320, 240);
   newData();
   
-  alpha_level = 255;
-  
-
+  displayName = true;
 }
 
 function draw() {
   background(255);   
-  fill(0, alpha_level);
+  //fill(0, alpha_level);
   textSize(20);
-  text(desc.join(" "), 10, 30, 700, 500);
+  if(displayName) {
+    text(name, 10, 30);
+    setTimeout(function() {
+      displayName = false;
+    }, 3000);
+  }
+  else {
+    fill(0);
+    text(name, 10, 30);
+    rect(10,15, nameBlackedOut, 20);
+    nameBlackedOut = min(nameBlackedOut+1, name.length*10);
+    
+    fill(0, alpha_level);
+    text(desc.join(" "), 10, descPosition, 700, 500);
+    alpha_level = min(alpha_level+1, 255);
+    for(var i=0; i<words.length; i++){
+        words[i].display();
+    }
+  }
   
-  for(var i=0; i<words.length; i++){
-    words[i].display();
-  }  
 
   //image(capture, 0, 0, 320, 240);
   
@@ -132,9 +149,17 @@ function mousePressed() {
   count++;
 }
 
+
 function newData() {
   try {
-    desc = split(data.getString(int(random(data.getRowCount())),13), " ");
+    cell = int(random(data.getRowCount()))
+    name = data.getString(cell, 0);
+    displayName = true;
+    // console.log("here");
+    // delay.delayTime(3000);
+    // console.log("here");
+
+    desc = split(data.getString(cell,13), " ");
     //desc = split(data.getString(3021-22,13), " ");
     //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
     words = [];
@@ -176,9 +201,9 @@ function newData() {
       words[i].blackRect();
     }
   }
-  catch(e) {
-    console.log(e);
-  }
+   catch(e) {
+     console.log(e);
+   }
 }
 
 function Word(word_text, index) {
@@ -228,7 +253,7 @@ function Word(word_text, index) {
       lines_before = all_words_before;
     }
     
-    return([10+all_words_before-lines_before, line_num*25+30, this.word_length-10, 20]);
+    return([10+all_words_before-lines_before, line_num*25+descPosition, this.word_length-10, 20]);
   }
 }
 
