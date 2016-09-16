@@ -134,7 +134,11 @@ function advance() {
   stopBarInterval();
   var flag = false;
   
-  if(count > 1 && count <= 3){
+  if(count == 1){
+    startBarInterval();
+  }
+  
+  else if(count <= 3){
     r = 0;
     if(count == 2){
       r = 0.5;
