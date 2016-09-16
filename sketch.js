@@ -1,3 +1,9 @@
+// /dev/cu.usbmodem1421
+
+var portName = '/dev/cu.usbmodem1421';  // fill in your serial
+var serial; // variable to hold an instance of the serialport library
+var inData;                             // for incoming serial data
+ 
 var data;
 var desc;
 var mic;
@@ -29,6 +35,16 @@ function preload() {
 }
 
 function setup() {
+  serial = new p5.SerialPort();       // make a new instance of the serialport library
+  serial.on('list', printList);  // set a callback function for the serialport list event
+  serial.on('connected', serverConnected); // callback for connecting to the server
+  serial.on('open', portOpen);        // callback for the port opening
+  serial.on('data', serialEvent);     // callback for when new data arrives
+  serial.on('error', serialError);    // callback for errors
+  serial.on('close', portClose);      // callback for the port closing
+ 
+  serial.list();                      // list the serial ports
+  serial.open(portName);              // open a serial port
   createCanvas(1000, 400);
   // capture = createCapture(VIDEO);
   
@@ -41,6 +57,7 @@ function setup() {
 }
 
 function draw() {
+ // println("sensor value: " + inData, 30, 30);
   noStroke();
   background(255);  
 
@@ -98,7 +115,7 @@ function draw() {
 
       rect(x_padding, 15, curName.length*(text_size/2), text_size);
       
-      if(start == false){
+      if(start == false && inData==1){
         levelOne();
         start = true;
         startBarInterval();
@@ -366,6 +383,35 @@ function Word(word_text, index) {
     
     return([x_padding+all_words_before-lines_before, line_num*(text_size+text_size/4)+descPosition, this.word_length-(text_size/2), text_size]);
   }
+}
+
+// get the list of ports:
+function printList(portList) {
+ // portList is an array of serial port names
+ for (var i = 0; i < portList.length; i++) {
+ // Display the list the console:
+ println(i + " " + portList[i]);
+ }
+}
+
+function serverConnected() {
+  println('connected to server.');
+}
+ 
+function portOpen() {
+  println('the serial port opened.')
+}
+ 
+function serialEvent() {
+ inData = Number(serial.read());
+}
+ 
+function serialError(err) {
+  println('Something went wrong with the serial port. ' + err);
+}
+ 
+function portClose() {
+  println('The serial port closed.');
 }
 
 
