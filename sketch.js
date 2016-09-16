@@ -7,6 +7,7 @@ var descPosition = 60;
 var curName;
 var barInterval;
 var start = false;
+var entire_alpha_level = 255;
 
 var count = 0;
 
@@ -32,41 +33,66 @@ function setup() {
   
   // capture.size(320, 240);
   newData();
+  noStroke();
 }
 
 function draw() {
-  background(255);   
-  //fill(0, alpha_level);
-  textSize(20);
-  r = int(random(3000, 6000));
-  if(!curName.displayed) {
-    text(curName.name, 10, 30);
-    setTimeout(function() {
-      curName.displayed = true;
-    }, r);
-  }
-  else {
-    fill(0);
-    text(curName.name, 10, 30);
-    //curName.rectWidth = min(curName.rectWidth+1, curName.length*10);
-    
-    fill(0, curName.alpha_level);
-    text(desc.join(" "), 10, descPosition, 700, 500);
-    curName.alpha_level = min(curName.alpha_level+1, 255);
-    for(var i=0; i<words.length; i++){
-        words[i].display();
-    }
+
+    background(255);  
+
+  if(entire_alpha_level < 255) {
+    entire_alpha_level = max(0, entire_alpha_level-1);
+    fill(0, entire_alpha_level);
   }
   
-  if(curName.alpha_level == 255){
-    rect(10,15, curName.length*10, 20);
-    
-    if(start == false){
-      levelOne();
-      start = true;
-      startBarInterval();
+    //fill(0, alpha_level);
+    textSize(20);
+    r = int(random(3000, 6000));
+    if(!curName.displayed) {
+      text(curName.name, 10, 30);
+      setTimeout(function() {
+        curName.displayed = true;
+      }, r);
     }
-  }
+    else {
+      if(entire_alpha_level >= 255){
+        fill(0);
+      }
+      else {
+        fill(255);
+      }
+      text(curName.name, 10, 30);
+      //curName.rectWidth = min(curName.rectWidth+1, curName.length*10);
+      
+      if(entire_alpha_level >= 255){
+        fill(0, curName.alpha_level);
+      }
+      else {
+        fill(255);
+      }
+      text(desc.join(" "), 10, descPosition, 700, 500);
+      curName.alpha_level = min(curName.alpha_level+1, 255);
+      
+      if(entire_alpha_level >= 255){
+        fill(0);
+      }
+      else {
+        fill(0, entire_alpha_level);
+      }
+      for(var i=0; i<words.length; i++){
+          words[i].display();
+      }
+    }
+    
+    if(curName.alpha_level == 255){
+      rect(10,15, curName.length*10, 20);
+      
+      if(start == false){
+        levelOne();
+        start = true;
+        startBarInterval();
+      }
+    }
   
 
   //image(capture, 0, 0, 320, 240);
@@ -100,7 +126,7 @@ function draw() {
 }
 
 function startBarInterval() {
-  r = int(random(3000, 10000));
+  r = int(random(3000, 6000));
   barInterval = setInterval(function() {
     advance();}
   , r);
@@ -160,6 +186,7 @@ function advance() {
       words[i].blackedOut = true;
     }
     startBarInterval();
+    entire_alpha_level = 254;
   }
   
   else {
@@ -167,6 +194,7 @@ function advance() {
    stopBarInterval();
    start = false;
    count = -1;
+   entire_alpha_level = 255;
   }
   
   count++;
@@ -176,11 +204,12 @@ function advance() {
 function newData() {
   try {
     // force commit
+    entire_alpha_level = 255;
     cell = int(random(data.getRowCount()))
     curName = new Name(data.getString(cell, 0));
-
+    //curName = new Name(data.getString(3112-4, 0));
     desc = split(data.getString(cell,13), " ");
-    //desc = split(data.getString(2172-4,13), " ");
+    //desc = split(data.getString(3112-4,13), " ");
     //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
     words = [];
     for(var i=0; i<desc.length; i++){
@@ -205,9 +234,13 @@ function newData() {
           words[i].blackOutLevel = 3;
         }
         
-        regex = desc[i].replace(/[.,\/#!$%\^&\*;:]/g,"")
-        if(curName.name.includes(regex)) {
-          words[i].blackOutLevel = 1;
+        regex = desc[i].toLowerCase().replace(/[.,\/#!$%\^&\*;:]/g,"")
+        name_parts = curName.name.toLowerCase().split(" ");
+
+        for(var j=0; j<name_parts.length; j++){
+          if(name_parts[j] == regex) {
+            words[i].blackOutLevel = 1;
+          }
         }
       }
     }
@@ -226,9 +259,10 @@ function newData() {
       words[i].blackRect();
     }
   }
-   catch(e) {
-     console.log(e);
-   }
+  catch(e) {
+    console.log("Error");
+    console.log(e);
+  }
 }
 
 function Name(name){
@@ -249,7 +283,7 @@ function Word(word_text, index) {
   this.word_text = word_text;
   this.word_length = word_text.length * 10;
   this.blackedOut = false;
-  this.blackOutLevel = 4;
+  this.blackOutLevel = 3;
   this.index = index;
   this.blackRectCords = [];
   this.hasNeighbor = false;
