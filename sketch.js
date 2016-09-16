@@ -3,11 +3,14 @@ var desc;
 var mic;
 var capture;
 var words;
-var descPosition = 60;
 var curName;
 var barInterval;
 var start = false;
 var entire_alpha_level = 255;
+var text_size = 40;
+var descPosition = text_size*2;
+var x_padding = 10;
+var y_padding = 30;
 
 var count = 0;
 
@@ -33,12 +36,12 @@ function setup() {
   
   // capture.size(320, 240);
   newData();
-  noStroke();
+  //noStroke();
 }
 
 function draw() {
-
-    background(255);  
+  noStroke();
+  background(255);  
 
   if(entire_alpha_level < 255) {
     entire_alpha_level = max(0, entire_alpha_level-1);
@@ -46,7 +49,7 @@ function draw() {
   }
   
     //fill(0, alpha_level);
-    textSize(20);
+    textSize(text_size);
     r = int(random(3000, 6000));
     if(!curName.displayed) {
       text(curName.name, 10, 30);
@@ -61,7 +64,7 @@ function draw() {
       else {
         fill(255);
       }
-      text(curName.name, 10, 30);
+      text(curName.name, x_padding, y_padding);
       //curName.rectWidth = min(curName.rectWidth+1, curName.length*10);
       
       if(entire_alpha_level >= 255){
@@ -70,7 +73,7 @@ function draw() {
       else {
         fill(255);
       }
-      text(desc.join(" "), 10, descPosition, 700, 500);
+      text(desc.join(" "), x_padding, descPosition, 700, 500);
       curName.alpha_level = min(curName.alpha_level+1, 255);
       
       if(entire_alpha_level >= 255){
@@ -85,7 +88,14 @@ function draw() {
     }
     
     if(curName.alpha_level == 255){
-      rect(10,15, curName.length*10, 20);
+      // may need to hardcode the 15 here...
+      // y-padding = 30
+      // 20 -> 15
+      // 25 ->
+      // 30 -> 5
+      // 40 -> 2
+
+      rect(x_padding, 15, curName.length*(text_size/2), text_size);
       
       if(start == false){
         levelOne();
@@ -281,7 +291,7 @@ function Name(name){
 
 function Word(word_text, index) {
   this.word_text = word_text;
-  this.word_length = word_text.length * 10;
+  this.word_length = word_text.length * (text_size/2);
   this.blackedOut = false;
   this.blackOutLevel = 3;
   this.index = index;
@@ -297,9 +307,15 @@ function Word(word_text, index) {
     if(this.blackedOut){
       if(index < words.length-1){
         if(this.hasNeighbor == false && words[index+1].blackedOut) {
-          this.blackRectCords[2]+=10;
+          this.blackRectCords[2]+=(text_size/2);
           this.hasNeighbor = true;
         }
+      }
+      if(entire_alpha_level >=255){
+        stroke(0);
+      }
+      else {
+        noStroke();
       }
       rect(this.blackRectCords[0], this.blackRectCords[1], this.blackRectCords[2], this.blackRectCords[3]);
       //this.rectWidth = min(this.rectWidth+1, this.blackRectCords[2])
@@ -328,7 +344,7 @@ function Word(word_text, index) {
       lines_before = all_words_before;
     }
     
-    return([10+all_words_before-lines_before, line_num*25+descPosition, this.word_length-10, 20]);
+    return([x_padding+all_words_before-lines_before, line_num*(text_size+text_size/4)+descPosition, this.word_length-(text_size/2), text_size]);
   }
 }
 
