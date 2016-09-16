@@ -7,10 +7,11 @@ var curName;
 var barInterval;
 var start = false;
 var entire_alpha_level = 255;
-var text_size = 40;
+var text_size = 20;
 var descPosition = text_size*2;
 var x_padding = 10;
 var y_padding = 30;
+var entire_desc;
 
 var count = 0;
 
@@ -162,6 +163,7 @@ function levelOne() {
   for(var i=0; i<words.length; i++){
     if(words[i].blackOutLevel == 1){
       words[i].blackedOut = true;
+      entire_desc.blacked_out++;
     }
   }
 }
@@ -174,18 +176,25 @@ function advance() {
     startBarInterval();
   }
   
-  else if(count <= 3){
-    r = 0;
-    if(count == 2){
-      r = 0.5;
-    }
-    else {
-      r = 0.2;
-    }
-    
+  else if(count <=2){
     for(var i=0; i<words.length; i++){
-      if(random() > r && words[i].blackOutLevel < 4) {
-        words[i].blackedOut = true;
+      if(entire_desc.percent() < 0.5){
+        if(random() > 0.5 && words[i].blackOutLevel < 4) {
+          words[i].blackedOut = true;
+          entire_desc.blacked_out++
+        }
+      }
+    }
+    startBarInterval();
+  }
+  
+  else if(count <= 3){
+    for(var i=0; i<words.length; i++){
+      if(entire_desc.percent() < 0.75){
+        if(random() > 0.2 && words[i].blackOutLevel < 4) {
+          words[i].blackedOut = true;
+          entire_desc.blacked_out++
+        }
       }
     }
     startBarInterval();
@@ -194,6 +203,7 @@ function advance() {
   else if(count == 4){
     for(var i=0; i<words.length; i++){
       words[i].blackedOut = true;
+      entire_desc.blacked_out++;
     }
     startBarInterval();
     entire_alpha_level = 254;
@@ -268,10 +278,20 @@ function newData() {
     for(var i=0; i<words.length; i++){
       words[i].blackRect();
     }
+    entire_desc = new Description(words.length);
   }
   catch(e) {
     console.log("Error");
     console.log(e);
+  }
+}
+
+function Description(total_words) {
+  this.total_words = total_words;
+  this.blacked_out = 0;
+  
+  this.percent = function() {
+    return this.blacked_out/this.total_words;
   }
 }
 
