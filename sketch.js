@@ -48,8 +48,7 @@ function draw() {
   else {
     fill(0);
     text(curName.name, 10, 30);
-    rect(10,15, curName.rectWidth, 20);
-    curName.rectWidth = min(curName.rectWidth+1, curName.length*10);
+    //curName.rectWidth = min(curName.rectWidth+1, curName.length*10);
     
     fill(0, curName.alpha_level);
     text(desc.join(" "), 10, descPosition, 700, 500);
@@ -59,9 +58,14 @@ function draw() {
     }
   }
   
-  if(curName.alpha_level == 255 && start == false){
-    start = true;
-    startBarInterval();
+  if(curName.alpha_level == 255){
+    rect(10,15, curName.length*10, 20);
+    
+    if(start == false){
+      levelOne();
+      start = true;
+      startBarInterval();
+    }
   }
   
 
@@ -118,24 +122,19 @@ function gotSources(sources) {
   }
 }
 
+function levelOne() {
+  for(var i=0; i<words.length; i++){
+    if(words[i].blackOutLevel == 1){
+      words[i].blackedOut = true;
+    }
+  }
+}
+
 function advance() {
   stopBarInterval();
   var flag = false;
-  if(count <= 1) {
-    for(var i=0; i<words.length; i++){
-      if(words[i].blackOutLevel == count+1){
-        words[i].blackedOut = true;
-        flag = true;
-      }
-      
-      if(i==words.length-1 && flag == false){
-        count++;
-        i=0;
-      }
-    }
-    startBarInterval();
-  }
-  else if(count <= 3){
+  
+  if(count > 1 && count <= 3){
     r = 0;
     if(count == 2){
       r = 0.5;
@@ -177,7 +176,7 @@ function newData() {
     curName = new Name(data.getString(cell, 0));
 
     desc = split(data.getString(cell,13), " ");
-    //desc = split(data.getString(3021-22,13), " ");
+    //desc = split(data.getString(2172-4,13), " ");
     //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
     words = [];
     for(var i=0; i<desc.length; i++){
@@ -187,7 +186,7 @@ function newData() {
         
         for(var j=0; j<blackout1.length; j++){
           if(desc[i].includes(blackout1[j])){
-            words[i].blackOutLevel = 1;
+            words[i].blackOutLevel = 2;
           }
         }
         
@@ -199,7 +198,12 @@ function newData() {
         
         first_letter = unchar(words[i].word_text[0]);
         if(first_letter >= 65 && first_letter <= 90){
-          words[i].blackOutLevel = 2;
+          words[i].blackOutLevel = 3;
+        }
+        
+        regex = desc[i].replace(/[.,\/#!$%\^&\*;:]/g,"")
+        if(curName.name.includes(regex)) {
+          words[i].blackOutLevel = 1;
         }
       }
     }
@@ -207,8 +211,8 @@ function newData() {
     for(var i=0; i<words.length-2; i++){
       for(var j=0; j<blackout1_pairs.length; j++){
         if(words[i].word_text.includes(blackout1_pairs[j][0]) && words[i+1].word_text.includes(blackout1_pairs[j][1])){
-          words[i].blackOutLevel = 1;
-          words[i+1].blackOutLevel = 1;
+          words[i].blackOutLevel = 2;
+          words[i+1].blackOutLevel = 2;
           i++;
         }
       }
@@ -241,7 +245,7 @@ function Word(word_text, index) {
   this.word_text = word_text;
   this.word_length = word_text.length * 10;
   this.blackedOut = false;
-  this.blackOutLevel = 0;
+  this.blackOutLevel = 4;
   this.index = index;
   this.blackRectCords = [];
   this.hasNeighbor = false;
@@ -259,8 +263,8 @@ function Word(word_text, index) {
           this.hasNeighbor = true;
         }
       }
-      rect(this.blackRectCords[0], this.blackRectCords[1], this.rectWidth, this.blackRectCords[3]);
-      this.rectWidth = min(this.rectWidth+1, this.blackRectCords[2])
+      rect(this.blackRectCords[0], this.blackRectCords[1], this.blackRectCords[2], this.blackRectCords[3]);
+      //this.rectWidth = min(this.rectWidth+1, this.blackRectCords[2])
     }
   }
   
