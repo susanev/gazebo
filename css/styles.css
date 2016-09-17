@@ -3,25 +3,24 @@ body {
 /*	font-family: 'Open Sans Condensed', sans-serif;*/
 	font-family: 'Inconsolata', monospace;
 	font-size: 20px;
-	color: #000;
+	line-height: 24px;
 } 
-
-div {
-	font-family: 'Inconsolata', monospace;
-	font-size: 20px;
-	color: #000;
-}
 
 canvas {
 	vertical-align: top;
 }
 
+div {
+  width: 690px;
+}
+
 .regular {
 	text-shadow: none;
+	color: black;
 }
 
 .blur {
-	color: transparent;
-   	text-shadow: 0 0 5px rgba(0,0,0,0.5);
+  color: transparent;
+  text-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
 

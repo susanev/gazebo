@@ -1,28 +1,36 @@
-// /dev/cu.usbmodem1421
-
+// sensor data variables
 var portName = '/dev/cu.usbmodem1421';  // fill in your serial
 var serial; // variable to hold an instance of the serialport library
-var sensor1;                             // for incoming serial data
-var sensor2;
-var sensor3;
-var sensor4;
+var sensorA;                             // for incoming serial data
+var sensorB;
+var sensorC;
+var sensorD;
+var sensorE;
+var sensorF;
 var serialEvents = 0;
+
+var nameDiv;
+var descDiv;
+var blurEffect = true;
+
+var newDataSet = false;
+var shuffledWords = [];
  
 var data;
 var desc;
-var mic;
-var capture;
 var words;
 var curName;
 var barInterval;
 var start = false;
-var entire_alpha_level = 255;
+
+// text positioning variables
 var text_size = 20;
-var descPosition = text_size*2;
+var descPosition = text_size*3+5;
 var x_padding = 10;
 var y_padding = 30;
 var entire_desc;
 
+// blacking out sequence
 var count = 0;
 
 // var blackout1 = ["pistol", "fatally", "killing", "shot", "dead", "killed", "fire"]
@@ -39,6 +47,19 @@ function preload() {
 }
 
 function setup() {
+  serialSetup();
+  createCanvas(1000, 400);
+  // capture = createCapture(VIDEO);
+  
+  // display sources for this machine
+  // MediaStreamTrack.getSources(gotSources);
+  
+  // capture.size(320, 240);
+  newData();
+  noStroke();
+}
+
+function serialSetup() {
   serial = new p5.SerialPort();       // make a new instance of the serialport library
   serial.on('list', printList);  // set a callback function for the serialport list event
   serial.on('connected', serverConnected); // callback for connecting to the server
@@ -49,139 +70,80 @@ function setup() {
  
   serial.list();                      // list the serial ports
   serial.open(portName);              // open a serial port
-  createCanvas(1000, 400);
-  // capture = createCapture(VIDEO);
-  
-  // display sources for this machine
-  // MediaStreamTrack.getSources(gotSources);
-  
-  // capture.size(320, 240);
-  newData();
-  //noStroke();
 }
 
 function draw() {
-  //curdata = inData.split(",");
-  println("sensor 1 value: " + sensor1);
-  println("sensor 2 value: " + sensor2);
-  println("sensor 3 value: " + sensor3);
-  println("sensor 4 value: " + sensor4);
-  noStroke();
-  background(255);  
 
-  if(entire_alpha_level < 255) {
-    entire_alpha_level = max(0, entire_alpha_level-1);
-    fill(0, entire_alpha_level);
-  }
+  // sensor testing statements
+  // println("sensor A value: " + sensorA);
+  // println("sensor B value: " + sensorB);
+  // println("sensor C value: " + sensorC);
+  // println("sensor D value: " + sensorD);  
+  // println("sensor E value: " + sensorE);
+  // println("sensor F value: " + sensorF);
   
-    //fill(0, alpha_level);
-    textSize(text_size);
-    r = int(random(3000, 6000));
-    if(!curName.displayed) {
-      text(curName.name, 10, 30);
-      setTimeout(function() {
-        curName.displayed = true;
-      }, r);
-    }
-    else {
-      if(entire_alpha_level >= 255){
-        fill(0);
-      }
-      else {
-        fill(255);
-      }
-      text(curName.name, x_padding, y_padding);
-      //curName.rectWidth = min(curName.rectWidth+1, curName.length*10);
-      
-      if(entire_alpha_level >= 255){
-        fill(0, curName.alpha_level);
-      }
-      else {
-        fill(255);
-      }
-      text(desc.join(" "), x_padding, descPosition, 700, 500);
-      curName.alpha_level = min(curName.alpha_level+1, 255);
-      
-      if(entire_alpha_level >= 255){
-        fill(0);
-      }
-      else {
-        fill(0, entire_alpha_level);
-      }
-      for(var i=0; i<words.length; i++){
-          words[i].display();
-      }
-    }
+  background(255); 
+  removeElements();
+  noStroke();
+  textSize(text_size);
+  
+  //console.log(newDataSet);
+  
+  if(!newDataSet) {
+    curName.alpha_level = min(curName.alpha_level+1, 255);
     
-    if(curName.alpha_level == 255){
+    nameDiv = createDiv(curName.name);
+    nameDiv.position(x_padding, y_padding);
+    
+    descDiv = createDiv(desc.join(" "));
+    descDiv.position(x_padding, descPosition, 700, 500);
+  
+    for(var i=0; i<words.length; i++){
+        words[i].display();
+    }
+      
+    if(curName.alpha_level == 255) {
       // may need to hardcode the 15 here...
       // y-padding = 30
-      // 20 -> 15
+      // 20 -> 30
       // 25 ->
       // 30 -> 5
       // 40 -> 2
-
-      rect(x_padding, 15, curName.length*(text_size/2), text_size);
+  
+      rect(x_padding, 30, curName.length*(text_size/2), text_size);
       
-      if(start == false && sensor1+sensor2>1 && sensor3 < 10){
-        levelOne();
+      if(start == false){// && sensor1+sensor2>1 && sensor3 < 10){
+        blurEffect = false;
+        // nameDiv.removeClass('blur');
+        // descDiv.removeClass('blur');
+        nameDiv.class('regular');
+        descDiv.class('regular');
+        
         start = true;
-        startBarInterval();
+        
+        setTimeout(function() {        
+          levelOne();
+          startBarInterval();
+        }, 4000);
+
       }
     }
-  
-
-  //image(capture, 0, 0, 320, 240);
-  
-  // for(var x=0; x<video.width; x++){
-  //   for(var y=0; y<capture.height; y++){
-  //     var loc = x + y*capture.width;
-      
-  //     console.log(capture.pixels[loc]);
-  //   }
-  // }
-  // capture.loadPixels();
-  // console.log(capture.pixels[mouseX+mouseY*capture.width]);
-  // console.log(capture.pixels.length)
-  // capture.updatePixels();
-  
-  // micLevel = mic.getLevel();
-  
-  // console.log(micLevel);
-  // console.log(alpha_level);
-  // if(micLevel > 0.4 || alpha_level <= 0){
-  //   alpha_level = 255;
-  //   desc = data.getString(int(random(data.getRowCount())),13)
-  // }
-  // else if(micLevel > 0.01) {
-  //   alpha_level = max(0, alpha_level-1);
-  // }
-  // else if(micLevel < 0.00015){
-  //   alpha_level = min(255, alpha_level+1);
-  // }
+    
+      if(blurEffect) {
+        nameDiv.class('blur');
+        descDiv.class('blur');
+      }
+  }
 }
 
 function startBarInterval() {
-  r = int(random(3000, 6000));
   barInterval = setInterval(function() {
     advance();}
-  , r);
+  , 2000);
 }
 
 function stopBarInterval() {
   clearInterval(barInterval);
-}
-
-function gotSources(sources) {
-  for (var i = 0; i !== sources.length; ++i) {
-    if (sources[i].kind === 'audio') {
-      console.log('audio: '+sources[i].label+' ID: '+sources[i].id);
-    } else if (sources[i].kind === 'video') {
-      console.log('video: '+sources[i].label+' ID: '+sources[i].id);
-    } else {
-      console.log('Some other kind of source: ', sources[i]);
-    }
-  }
 }
 
 function levelOne() {
@@ -196,16 +158,18 @@ function levelOne() {
 function advance() {
   stopBarInterval();
   var flag = false;
+
+  shuffleArray(shuffledWords);
   
   if(count == 1){
     startBarInterval();
   }
   
   else if(count <=2){
-    for(var i=0; i<words.length; i++){
+    for(var i=0; i<shuffledWords.length; i++){
       if(entire_desc.percent() < 0.5){
-        if(random() > 0.5 && words[i].blackOutLevel < 4) {
-          words[i].blackedOut = true;
+        if(random() > 0.5 && shuffledWords[i].blackOutLevel < 4) {
+          words[words.indexOf(shuffledWords[i])].blackedOut = true;
           entire_desc.blacked_out++
         }
       }
@@ -214,10 +178,10 @@ function advance() {
   }
   
   else if(count <= 3){
-    for(var i=0; i<words.length; i++){
+    for(var i=0; i<shuffledWords.length; i++){
       if(entire_desc.percent() < 0.75){
-        if(random() > 0.2 && words[i].blackOutLevel < 4) {
-          words[i].blackedOut = true;
+        if(random() > 0.2 && shuffledWords[i].blackOutLevel < 4) {
+          words[words.indexOf(shuffledWords[i])].blackedOut = true;
           entire_desc.blacked_out++
         }
       }
@@ -231,15 +195,23 @@ function advance() {
       entire_desc.blacked_out++;
     }
     startBarInterval();
-    entire_alpha_level = 254;
   }
   
   else {
-   newData(); 
-   stopBarInterval();
-   start = false;
-   count = -1;
-   entire_alpha_level = 255;
+    setTimeout(function() {
+      newDataSet = true;
+      background(255);
+    }, 4000);
+    
+    setTimeout(function() {
+      newDataSet = false;
+      newData();
+      blurEffect = true;
+      start = false;
+      count = -1;
+    }, 7000);
+    
+    
   }
   
   count++;
@@ -249,7 +221,6 @@ function advance() {
 function newData() {
   try {
     // force commit
-    entire_alpha_level = 255;
     cell = int(random(data.getRowCount()))
     curName = new Name(data.getString(cell, 0));
     //curName = new Name(data.getString(3112-4, 0));
@@ -257,6 +228,7 @@ function newData() {
     //desc = split(data.getString(3112-4,13), " ");
     //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
     words = [];
+    shuffledWords = [];
     for(var i=0; i<desc.length; i++){
       desc[i] = desc[i].replace(/^\s+|\s+$/g, '');
       if(desc[i].length != 0){
@@ -280,7 +252,7 @@ function newData() {
         }
         
         regex = desc[i].toLowerCase().replace(/[.,\/#!$%\^&\*;:]/g,"")
-        name_parts = curName.name.toLowerCase().split(" ");
+        name_parts = curName.name.toLowerCase().replace(/[.,\/#!$%\^&\*;:]/g,"").split(" ");
 
         for(var j=0; j<name_parts.length; j++){
           if(name_parts[j] == regex) {
@@ -304,6 +276,10 @@ function newData() {
       words[i].blackRect();
     }
     entire_desc = new Description(words.length);
+    
+    for(var i=0; i<words.length; i++){
+      shuffledWords[i] = words[i];
+    }
   }
   catch(e) {
     console.log("Error");
@@ -356,12 +332,9 @@ function Word(word_text, index) {
           this.hasNeighbor = true;
         }
       }
-      if(entire_alpha_level >=255){
-        stroke(0);
-      }
-      else {
-        noStroke();
-      }
+
+      stroke(0);
+      fill(0);
       rect(this.blackRectCords[0], this.blackRectCords[1], this.blackRectCords[2], this.blackRectCords[3]);
       //this.rectWidth = min(this.rectWidth+1, this.blackRectCords[2])
     }
@@ -393,6 +366,18 @@ function Word(word_text, index) {
   }
 }
 
+function shuffleArray(a) {
+  var j, x, i;
+  for (i = a.length; i; i--) {
+      j = Math.floor(Math.random() * i);
+      x = a[i - 1];
+      a[i - 1] = a[j];
+      a[j] = x;
+  }
+}
+
+
+// Serial data functions
 // get the list of ports:
 function printList(portList) {
  // portList is an array of serial port names
@@ -413,18 +398,18 @@ function portOpen() {
 function serialEvent() {
   var which = serialEvents%4;
   if(which == 0){
-    sensor1 = Number(serial.read());
+    sensorA = Number(serial.read());
   }
   else if(which == 1){
-    sensor2 = Number(serial.read());
+    sensorB = Number(serial.read());
   }
   else if(which == 2){
-    sensor3 = Number(serial.read());
+    sensorC = Number(serial.read());
   }
   else {
-    sensor4 = Number(serial.read());
-    if(sensor4 >= 122){
-      sensor4 = 0;
+    sensorD = Number(serial.read());
+    if(sensorD >= 122){
+      sensorD = 0;
     }
   }
   serialEvents = (serialEvents+1)%4;
