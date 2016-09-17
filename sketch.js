@@ -2,7 +2,11 @@
 
 var portName = '/dev/cu.usbmodem1421';  // fill in your serial
 var serial; // variable to hold an instance of the serialport library
-var inData;                             // for incoming serial data
+var sensor1;                             // for incoming serial data
+var sensor2;
+var sensor3;
+var sensor4;
+var serialEvents = 0;
  
 var data;
 var desc;
@@ -57,7 +61,11 @@ function setup() {
 }
 
 function draw() {
- // println("sensor value: " + inData, 30, 30);
+  //curdata = inData.split(",");
+  println("sensor 1 value: " + sensor1);
+  println("sensor 2 value: " + sensor2);
+  println("sensor 3 value: " + sensor3);
+  println("sensor 4 value: " + sensor4);
   noStroke();
   background(255);  
 
@@ -115,7 +123,7 @@ function draw() {
 
       rect(x_padding, 15, curName.length*(text_size/2), text_size);
       
-      if(start == false && inData==1){
+      if(start == false && sensor1+sensor2>1 && sensor3 < 10){
         levelOne();
         start = true;
         startBarInterval();
@@ -403,7 +411,23 @@ function portOpen() {
 }
  
 function serialEvent() {
- inData = Number(serial.read());
+  var which = serialEvents%4;
+  if(which == 0){
+    sensor1 = Number(serial.read());
+  }
+  else if(which == 1){
+    sensor2 = Number(serial.read());
+  }
+  else if(which == 2){
+    sensor3 = Number(serial.read());
+  }
+  else {
+    sensor4 = Number(serial.read());
+    if(sensor4 >= 122){
+      sensor4 = 0;
+    }
+  }
+  serialEvents = (serialEvents+1)%4;
 }
  
 function serialError(err) {
