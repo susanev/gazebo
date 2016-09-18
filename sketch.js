@@ -1,5 +1,5 @@
 // sensor data variables
-//var portName = '/dev/cu.usbmodem1421';  // fill in your serial
+var portName = '/dev/cu.usbmodem1421';  // fill in your serial
 var serial; // variable to hold an instance of the serialport library
 var sensorA;                             // for incoming serial data
 var sensorB;
@@ -48,7 +48,7 @@ function preload() {
 }
 
 function setup() {
-  //serialSetup();
+  serialSetup();
   createCanvas(800, 650);
   // capture = createCapture(VIDEO);
   
@@ -400,54 +400,54 @@ function shuffleArray(a) {
 }
 
 
-// // Serial data functions
-// // get the list of ports:
-// function printList(portList) {
-// // portList is an array of serial port names
-// for (var i = 0; i < portList.length; i++) {
-// // Display the list the console:
-// println(i + " " + portList[i]);
-// }
-// }
+// Serial data functions
+// get the list of ports:
+function printList(portList) {
+// portList is an array of serial port names
+for (var i = 0; i < portList.length; i++) {
+// Display the list the console:
+println(i + " " + portList[i]);
+}
+}
 
-// function serverConnected() {
-//   println('connected to server.');
-// }
+function serverConnected() {
+  println('connected to server.');
+}
  
-// function portOpen() {
-//   println('the serial port opened.')
-// }
+function portOpen() {
+  println('the serial port opened.')
+}
  
-// function serialEvent() {
-//   var which = serialEvents%6;
-//   if(which == 0){
-//     sensorA = Number(serial.read());
-//   }
-//   else if(which == 1){
-//     sensorB = Number(serial.read());
-//   }
-//   else if(which == 2){
-//     sensorC = Number(serial.read());
-//   }
-//   else if(which == 3){
-//     sensorD = Number(serial.read());
-//   }
-//   else if(which == 4){
-//     sensorE = Number(serial.read());
-//   }
-//   else {
-//     sensorF = Number(serial.read());
-//   }
-//   serialEvents = (serialEvents+1)%6;
-// }
+function serialEvent() {
+  var which = serialEvents%6;
+  if(which == 0){
+    sensorA = Number(serial.read());
+  }
+  else if(which == 1){
+    sensorB = Number(serial.read());
+  }
+  else if(which == 2){
+    sensorC = Number(serial.read());
+  }
+  else if(which == 3){
+    sensorD = Number(serial.read());
+  }
+  else if(which == 4){
+    sensorE = Number(serial.read());
+  }
+  else {
+    sensorF = Number(serial.read());
+  }
+  serialEvents = (serialEvents+1)%6;
+}
  
-// function serialError(err) {
-//   println('Something went wrong with the serial port. ' + err);
-// }
+function serialError(err) {
+  println('Something went wrong with the serial port. ' + err);
+}
  
-// function portClose() {
-//   println('The serial port closed.');
-// }
+function portClose() {
+  println('The serial port closed.');
+}
 
 
 
