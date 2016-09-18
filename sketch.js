@@ -22,12 +22,13 @@ var words;
 var curName;
 var barInterval;
 var start = false;
+var divWidth = 820;
 
 // text positioning variables
-var text_size = 20;
-var descPosition = text_size*3+5;
-var x_padding = 10;
-var y_padding = 30;
+var text_size = 40;
+var descPosition = text_size*3+5;//displayWidth/2;//
+var x_padding = 50;
+var y_padding = 45;//+displayWidth/2;
 var entire_desc;
 
 // blacking out sequence
@@ -48,7 +49,7 @@ function preload() {
 
 function setup() {
   serialSetup();
-  createCanvas(1000, 400);
+  createCanvas(800, 650);
   // capture = createCapture(VIDEO);
   
   // display sources for this machine
@@ -110,29 +111,47 @@ function draw() {
       // 30 -> 5
       // 40 -> 2
   
-      rect(x_padding, 30, curName.length*(text_size/2), text_size);
+      rect(x_padding, 52, curName.length*(text_size/2), text_size);
       
-      if(start == false){// && sensor1+sensor2>1 && sensor3 < 10){
-        blurEffect = false;
-        // nameDiv.removeClass('blur');
-        // descDiv.removeClass('blur');
-        nameDiv.class('regular');
-        descDiv.class('regular');
+      sensorSum = sensorA + sensorB + sensorC + sensorD + sensorE + sensorF;
+      println(sensorSum);
+      if(start == false){
+        //if(sensorSum > 2){
+          blurEffect = false;
+          // nameDiv.removeClass('blur');
+          // descDiv.removeClass('blur');
+          nameDiv.class('regular');
+          descDiv.class('regular');
+          
+          start = true;
+          
+          setTimeout(function() {        
+            levelOne();
+            startBarInterval();
+          }, 4000);
+       // }
+        // else {
+        //   start = true;
+        //   blurEffect = false;
+        //   setTimeout(function() {
+        //     newDataSet = true;
+        //     background(255);
+        //   }, 4000);
         
-        start = true;
-        
-        setTimeout(function() {        
-          levelOne();
-          startBarInterval();
-        }, 4000);
-
+        //   setTimeout(function() {
+        //     newDataSet = false;
+        //     newData();
+        //     blurEffect = true;
+        //     start = false;
+        //     count = 1;
+        //   }, 7000);
+        // }
       }
     }
-    
-      if(blurEffect) {
-        nameDiv.class('blur');
-        descDiv.class('blur');
-      }
+    if(blurEffect) {
+      nameDiv.class('blur');
+      descDiv.class('blur');
+    }
   }
 }
 
@@ -221,12 +240,16 @@ function advance() {
 function newData() {
   try {
     // force commit
-    cell = int(random(data.getRowCount()))
-    curName = new Name(data.getString(cell, 0));
-    //curName = new Name(data.getString(3112-4, 0));
-    desc = split(data.getString(cell,13), " ");
-    //desc = split(data.getString(3112-4,13), " ");
-    //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
+    descLength = 600;
+    while (descLength > 590){
+      cell = int(random(data.getRowCount()))
+      curName = new Name(data.getString(cell, 0));
+      //curName = new Name(data.getString(3112-4, 0));
+      desc = split(data.getString(cell,13), " ");
+      //desc = split(data.getString(3112-4,13), " ");
+      //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
+      descLength = desc.length;
+    }
     words = [];
     shuffledWords = [];
     for(var i=0; i<desc.length; i++){
@@ -335,7 +358,7 @@ function Word(word_text, index) {
 
       stroke(0);
       fill(0);
-      rect(this.blackRectCords[0], this.blackRectCords[1], this.blackRectCords[2], this.blackRectCords[3]);
+      rect(this.blackRectCords[0], this.blackRectCords[1]+10, this.blackRectCords[2], this.blackRectCords[3]);
       //this.rectWidth = min(this.rectWidth+1, this.blackRectCords[2])
     }
   }
@@ -350,14 +373,14 @@ function Word(word_text, index) {
       this_line+=words[i].word_length;
       all_words_before+=words[i].word_length;
       
-      if(this_line > 700){
+      if(this_line > divWidth){
         lines_before = all_words_before-words[i].word_length;;
         this_line = words[i].word_length;
         line_num++;
       }
     }
     
-    if(this_line + words[this.index].word_length > 700){
+    if(this_line + words[this.index].word_length > divWidth){
       line_num++;
       lines_before = all_words_before;
     }
@@ -396,7 +419,7 @@ function portOpen() {
 }
  
 function serialEvent() {
-  var which = serialEvents%4;
+  var which = serialEvents%6;
   if(which == 0){
     sensorA = Number(serial.read());
   }
@@ -406,13 +429,16 @@ function serialEvent() {
   else if(which == 2){
     sensorC = Number(serial.read());
   }
-  else {
+  else if(which == 3){
     sensorD = Number(serial.read());
-    if(sensorD >= 122){
-      sensorD = 0;
-    }
   }
-  serialEvents = (serialEvents+1)%4;
+  else if(which == 4){
+    sensorE = Number(serial.read());
+  }
+  else {
+    sensorF = Number(serial.read());
+  }
+  serialEvents = (serialEvents+1)%6;
 }
  
 function serialError(err) {
