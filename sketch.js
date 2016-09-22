@@ -48,7 +48,7 @@ function preload() {
 }
 
 function setup() {
-  serialSetup();
+  //serialSetup();
   createCanvas(900, 650);
   // capture = createCapture(VIDEO);
   
@@ -116,7 +116,7 @@ function draw() {
       sensorSum = sensorA + sensorB + sensorC + sensorD + sensorE + sensorF;
       println(sensorSum);
       if(start == false){
-        if(sensorSum > 0){
+        //if(sensorSum > 0){
           blurEffect = false;
           // nameDiv.removeClass('blur');
           // descDiv.removeClass('blur');
@@ -129,23 +129,23 @@ function draw() {
             levelOne();
             startBarInterval();
           }, 1000);
-        }
-        else {
-          start = true;
-          blurEffect = false;
-          setTimeout(function() {
-            newDataSet = true;
-            background(255);
-          }, 6000);
+       // }
+        // else {
+        //   start = true;
+        //   blurEffect = false;
+        //   setTimeout(function() {
+        //     newDataSet = true;
+        //     background(255);
+        //   }, 6000);
         
-          setTimeout(function() {
-            newDataSet = false;
-            newData();
-            blurEffect = true;
-            start = false;
-            count = 1;
-          }, 10000);
-        }
+        //   setTimeout(function() {
+        //     newDataSet = false;
+        //     newData();
+        //     blurEffect = true;
+        //     start = false;
+        //     count = 1;
+        //   }, 10000);
+        // }
       }
     }
     if(blurEffect) {
