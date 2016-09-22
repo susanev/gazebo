@@ -22,12 +22,12 @@ var words;
 var curName;
 var barInterval;
 var start = false;
-var divWidth = 820;
+var divWidth = 720;
 
 // text positioning variables
-var text_size = 40;
+var text_size = 20;
 var descPosition = text_size*3+5;//displayWidth/2;//
-var x_padding = 50;
+var x_padding = 150;
 var y_padding = 45;//+displayWidth/2;
 var entire_desc;
 
@@ -49,7 +49,7 @@ function preload() {
 
 function setup() {
   serialSetup();
-  createCanvas(800, 650);
+  createCanvas(900, 650);
   // capture = createCapture(VIDEO);
   
   // display sources for this machine
@@ -94,7 +94,7 @@ function draw() {
     curName.alpha_level = min(curName.alpha_level+1, 255);
     
     nameDiv = createDiv(curName.name);
-    nameDiv.position(x_padding, y_padding);
+    nameDiv.position(x_padding, y_padding-20);
     
     descDiv = createDiv(desc.join(" "));
     descDiv.position(x_padding, descPosition, 700, 500);
@@ -111,12 +111,12 @@ function draw() {
       // 30 -> 5
       // 40 -> 2
   
-      rect(x_padding, 52, curName.length*(text_size/2), text_size);
+      rect(x_padding, 30, curName.length*(text_size/2), text_size);
       
       sensorSum = sensorA + sensorB + sensorC + sensorD + sensorE + sensorF;
       println(sensorSum);
       if(start == false){
-        //if(sensorSum > 2){
+        if(sensorSum > 0){
           blurEffect = false;
           // nameDiv.removeClass('blur');
           // descDiv.removeClass('blur');
@@ -128,24 +128,24 @@ function draw() {
           setTimeout(function() {        
             levelOne();
             startBarInterval();
-          }, 4000);
-       // }
-        // else {
-        //   start = true;
-        //   blurEffect = false;
-        //   setTimeout(function() {
-        //     newDataSet = true;
-        //     background(255);
-        //   }, 4000);
+          }, 1000);
+        }
+        else {
+          start = true;
+          blurEffect = false;
+          setTimeout(function() {
+            newDataSet = true;
+            background(255);
+          }, 6000);
         
-        //   setTimeout(function() {
-        //     newDataSet = false;
-        //     newData();
-        //     blurEffect = true;
-        //     start = false;
-        //     count = 1;
-        //   }, 7000);
-        // }
+          setTimeout(function() {
+            newDataSet = false;
+            newData();
+            blurEffect = true;
+            start = false;
+            count = 1;
+          }, 10000);
+        }
       }
     }
     if(blurEffect) {
@@ -158,7 +158,7 @@ function draw() {
 function startBarInterval() {
   barInterval = setInterval(function() {
     advance();}
-  , 2000);
+  , 500);
 }
 
 function stopBarInterval() {
@@ -358,7 +358,7 @@ function Word(word_text, index) {
 
       stroke(0);
       fill(0);
-      rect(this.blackRectCords[0], this.blackRectCords[1]+10, this.blackRectCords[2], this.blackRectCords[3]);
+      rect(this.blackRectCords[0], this.blackRectCords[1]+5, this.blackRectCords[2], this.blackRectCords[3]);
       //this.rectWidth = min(this.rectWidth+1, this.blackRectCords[2])
     }
   }
