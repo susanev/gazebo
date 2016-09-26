@@ -42,20 +42,12 @@ var keep = ["break", "hurt", "man", "woman", "child", "dead", "death", "girl", "
 
 function preload() {
   data = loadTable("data/MPVDataset.csv", "csv", "header")
-  // mic = new p5.AudioIn();
-  // mic.start();
   textFont("Inconsolata");
 }
 
 function setup() {
   //serialSetup();
   createCanvas(900, 650);
-  // capture = createCapture(VIDEO);
-  
-  // display sources for this machine
-  // MediaStreamTrack.getSources(gotSources);
-  
-  // capture.size(320, 240);
   newData();
   noStroke();
 }
@@ -87,9 +79,7 @@ function draw() {
   removeElements();
   noStroke();
   textSize(text_size);
-  
-  //console.log(newDataSet);
-  
+    
   if(!newDataSet) {
     curName.alpha_level = min(curName.alpha_level+1, 255);
     
@@ -97,20 +87,13 @@ function draw() {
     nameDiv.position(x_padding, y_padding-20);
     
     descDiv = createDiv(desc.join(" "));
-    descDiv.position(x_padding, descPosition, 700, 500);
+    descDiv.position(x_padding, descPosition, 720, 500);
   
     for(var i=0; i<words.length; i++){
         words[i].display();
     }
       
-    if(curName.alpha_level == 255) {
-      // may need to hardcode the 15 here...
-      // y-padding = 30
-      // 20 -> 30
-      // 25 ->
-      // 30 -> 5
-      // 40 -> 2
-  
+    if(curName.alpha_level == 255) {  
       rect(x_padding, 30, curName.length*(text_size/2), text_size);
       
       sensorSum = sensorA + sensorB + sensorC + sensorD + sensorE + sensorF;
@@ -239,15 +222,11 @@ function advance() {
 
 function newData() {
   try {
-    // force commit
     descLength = 600;
     while (descLength > 590){
       cell = int(random(data.getRowCount()))
       curName = new Name(data.getString(cell, 0));
-      //curName = new Name(data.getString(3112-4, 0));
       desc = split(data.getString(cell,13), " ");
-      //desc = split(data.getString(3112-4,13), " ");
-      //desc = split("Graham, who was wanted by police as a person of interest in the disappearance of his six-month-old daughter, was fatally shot by deputies who tracked a car he stole in a nearby town.", " ");
       descLength = desc.length;
     }
     words = [];
